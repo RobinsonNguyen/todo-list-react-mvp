@@ -3,41 +3,58 @@ import "./App.css";
 import { useState, useEffect } from "react";
 
 function App() {
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState({});
   useEffect(() => {
     const getData = async () => {
       const res = await fetch("http://localhost:3001/test");
       const data = await res.json();
-      setTodos(data);
+      data.map((element) => {
+        const obj = {};
+        obj[element.id] = {
+          name: element.name,
+          description: element.description,
+        };
+        addTodos(obj);
+      });
     };
     getData();
   }, []);
 
   function addTodos(obj) {
-    setTodos([...todos, obj]);
+    setTodos((prevState) => {
+      return { ...prevState, ...obj };
+    });
+  }
+
+  function removeTodos(id) {
+    const temp = { ...todos };
+    delete temp[id];
+    setTodos(temp);
   }
 
   return (
     <>
       <h1>This is the react mvp</h1>
-      <ShowTodos todos={todos} addTodos={addTodos} />
+      <ShowTodos todos={todos} addTodos={addTodos} removeTodos={removeTodos} />
       <CreateNewTodo addTodos={addTodos} />
     </>
   );
 }
 
 function ShowTodos(props) {
-  return props.todos.map((element) => {
+  return Object.keys(props.todos).map((key, index) => {
     return (
       <DisplayTodoItem
-        key={element.id}
-        element={element}
+        key={key}
+        id={key}
+        element={props.todos[key]}
         addTodos={props.addTodos}
+        removeTodos={props.removeTodos}
       />
     );
   });
 }
-function DisplayTodoItem({ element, addTodos }) {
+function DisplayTodoItem({ id, element, addTodos, removeTodos }) {
   const [edit, setEdit] = useState(false);
   const handleGetOne = async (e) => {
     const response = await fetch(`http://localhost:3001/test/${e.target.id}`);
@@ -57,7 +74,13 @@ function DisplayTodoItem({ element, addTodos }) {
       headers: { "Content-Type": "application/json" },
     });
     const data = await response.json();
-    addTodos(data);
+    console.log(`updating on id: ${e.target.id}`);
+    const temp = {};
+    temp[e.target.id] = {
+      name: data[0].name,
+      description: data[0].description,
+    };
+    addTodos(temp);
     setEdit(!edit);
   };
   const handleDelete = async (e) => {
@@ -67,25 +90,26 @@ function DisplayTodoItem({ element, addTodos }) {
     const data = await response.json();
     console.log(`I am deleting id: ${e.target.id}`);
     console.log(data[0]);
+    removeTodos(e.target.id);
   };
   if (!edit) {
     return (
       <div>
         <h2>
-          {element.id} {element.name}
+          {id} {element.name}
         </h2>
         <p>{element.description}</p>
-        <button id={element.id} onClick={handleGetOne}>
+        <button id={id} onClick={handleGetOne}>
           Edit
         </button>
-        <button id={element.id} onClick={handleDelete}>
+        <button id={id} onClick={handleDelete}>
           Delete
         </button>
       </div>
     );
   } else {
     return (
-      <form id={element.id} onSubmit={handleEditOne}>
+      <form id={id} onSubmit={handleEditOne}>
         <input
           type="text"
           placeholder={element.name}
@@ -96,8 +120,8 @@ function DisplayTodoItem({ element, addTodos }) {
           placeholder={element.description}
           defaultValue={element.description}
         ></input>
-        <button id={element.id}>Submit</button>
-        <button id={element.id} onClick={handleDelete}>
+        <button id={id}>Submit</button>
+        <button id={id} onClick={handleDelete}>
           Delete
         </button>
       </form>
@@ -121,9 +145,14 @@ function CreateNewTodo(props) {
       });
       const data = await response.json();
       //sends first and only row from sql query to setTodo state
-      props.addTodos(data[0]);
+      const temp = {};
+      temp[data[0].id] = {
+        name: data[0].name,
+        description: data[0].description,
+      };
+      props.addTodos(temp);
     };
-
+    e.target.reset();
     sendTodosToAPI();
   };
   return (
