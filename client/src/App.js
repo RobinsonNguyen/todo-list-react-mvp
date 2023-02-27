@@ -9,7 +9,7 @@ function App() {
   const [todos, setTodos] = useState([]);
   const [currentDate, setCurrentDate] = useState("");
   async function getData() {
-    const res = await fetch("http://localhost:3001/test");
+    const res = await fetch("https://todo-list-react-mvp.onrender.com/test");
     const data = await res.json();
     setTodos(data);
     // data.map((element) => {
