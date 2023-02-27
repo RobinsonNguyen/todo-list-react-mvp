@@ -23,9 +23,10 @@ app.get("/test/:id", async (req, res) => {
 
 app.post("/test", async (req, res) => {
   try {
-    const { name, title, start } = req.body;
-    const response = await sql`INSERT INTO todo_table(name, title, start)
-    VALUES (${name},${title},${start}) RETURNING *`;
+    const { name, title, start, modified } = req.body;
+    const response =
+      await sql`INSERT INTO todo_table(name, title, start,modified)
+    VALUES (${name},${title},${start},${modified}) RETURNING *`;
     res.send(response).status(200);
   } catch (error) {}
 });
@@ -33,10 +34,11 @@ app.post("/test", async (req, res) => {
 app.patch("/test/:id", async (req, res) => {
   try {
     const id = req.params.id;
-    const { name, title, start } = req.body;
+    const { name, title, start, modified } = req.body;
     const response = await sql`UPDATE todo_table SET name = ${name},
     title = ${title},
-    start = ${start}
+    start = ${start},
+    modified = ${modified}
     WHERE id = ${id} RETURNING *`;
     res.send(response).status(200);
   } catch (error) {}

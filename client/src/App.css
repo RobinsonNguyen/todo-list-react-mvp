@@ -1,30 +1,148 @@
+:root {
+  --primary-color: #69d6e6;
+  --primary-accent: rgb(230, 213, 83);
+  --secondary-color: #e681b1;
+  --secondary-accent: rgb(153, 143, 63);
+  --tertiary-color: #378c99;
+  font-size: 18px;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+#root {
+  height: 100%;
+}
+#background {
+  position: fixed;
+  z-index: -1;
+  height: 100%;
+  width: 100%;
+  background: var(--tertiary-color);
+}
 #display {
+  position: relative;
+  z-index: 1;
   display: flex;
-  border: black solid 1px;
-  justify-content: center;
+  /* border: black solid 1px; */
+  justify-content: space-evenly;
+  color: var(--tertiary-color);
+  /* background-image: url(../public/justkeepswimming.jpg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover; */
+}
+#display input {
+  padding: 0.5em;
+  margin: 0.5em;
 }
 #todo-list {
-  border: orange solid 1px;
+  text-align: center;
   padding: 0 20px;
   margin: 0;
+  color: var(--primary-accent);
+  width: 35vw;
 }
 #calendar {
-  border: red solid 1px;
-  width: 60vw;
-  /* flex-grow: 1; */
+  background-image: url(../public/justkeepswimming.jpg);
+  background-repeat: no-repeat;
+  background-position: right;
+  background-size: contain;
+  color: var(--primary-accent);
+  width: 960px;
+  height: 780px;
+}
+#calendar button {
+  background: var(--secondary-accent);
+  color: var(--primary-accent);
+  border: var(--primary-accent) solid 1px;
+}
+button {
+  background: var(--secondary-accent);
+  color: var(--primary-accent);
+  border: var(--primary-accent) solid 1px;
+  font-size: 0.9em;
+  font-weight: 700;
+  margin: 0.1em;
+  padding: 0.5em;
+  border-radius: 10px;
+}
+button:hover {
+  cursor: pointer;
+}
+#new-event-button {
+  margin: 20px;
 }
 
 #create-todo-form {
-  border: black solid 1px;
-  /* display: flex; */
-  margin: 5px;
+  background-image: url(../public/fishtank.jpg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  border: var(--primary-accent) solid 2px;
+  border-radius: 10px;
+  color: var(--primary-color);
+  margin: 10px 5px;
+  padding: 1em;
+}
+#create-todo-form button {
+  justify-self: center;
+  background: transparent;
+  color: var(--primary-accent);
+  border: var(--primary-accent) solid 1px;
 }
 #create-todo-form > * {
   padding: 5px;
-  /* width: 100px; */
+  align-items: center;
 }
 #create-todo-form div {
   display: flex;
-  justify-content: center;
-  /* border: red solid 1px; */
+  justify-content: left;
 }
+#create-todo-form input {
+  background: rgba(153, 143, 63, 0.8);
+  color: var(--primary-accent);
+  font-weight: 800;
+  font-size: 1em;
+  margin: 0;
+  width: 100%;
+}
+#create-todo-form textarea {
+  background: rgba(153, 143, 63, 0.8);
+  color: var(--primary-accent);
+  font-weight: 800;
+  font-size: 1em;
+  margin: 0;
+  width: 100%;
+}
+#create-todo-form label {
+  margin: 0 1em;
+  font-weight: 700;
+}
+#event-title {
+  margin: 0 0.5em 0 0;
+}
+.edit-form {
+  background-image: url(../public/sloth-treadmill.png);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 160%;
+  border-radius: 10px;
+  border: var(--primary-accent) solid 1px;
+  margin: 0 5px;
+  padding: 0 1em 1em 1em;
+}
+.edit-form input {
+  background: rgba(153, 143, 63, 0.8);
+  font-weight: 800;
+  color: var(--primary-accent);
+  font-size: 1em;
+}
+/* @media all and (max-height: 820px) {
+  body {
+    height: 100%;
+  }
+} */

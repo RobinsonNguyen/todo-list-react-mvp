@@ -7,6 +7,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 
 function App() {
   const [todos, setTodos] = useState([]);
+  const [currentDate, setCurrentDate] = useState("");
   async function getData() {
     const res = await fetch("http://localhost:3001/test");
     const data = await res.json();
@@ -39,24 +40,27 @@ function App() {
     getData();
   }
 
-  const handleDateClick = (arg) => {};
+  const handleDateClick = (arg) => {
+    console.log(arg);
+  };
 
-  // calendarRef = React.createRef();
   const handleDateSelect = (selectInfo) => {
-    console.log("in here");
-    console.log(selectInfo);
+    console.log(selectInfo.startStr);
+    setCurrentDate(selectInfo.startStr);
   };
   return (
     <>
+      <div id="background"></div>
       <div id="display">
         <div id="todo-list">
-          <h1>Todo List!</h1>
+          <CreateNewTodo addTodos={addTodos} />
+          <h1>Todo List! {currentDate}</h1>
           <ShowTodos
             todos={todos}
             addTodos={addTodos}
             removeTodos={removeTodos}
+            currentDate={currentDate}
           />
-          <CreateNewTodo addTodos={addTodos} />
         </div>
         <div id="calendar">
           <FullCalendar
@@ -94,15 +98,18 @@ function App() {
 //--------------------
 function ShowTodos(props) {
   return props.todos.map((element) => {
-    return (
-      <DisplayTodoItem
-        key={element.id}
-        id={element.id}
-        element={element}
-        addTodos={props.addTodos}
-        removeTodos={props.removeTodos}
-      />
-    );
+    if (element.start.startsWith(props.currentDate)) {
+      return (
+        <DisplayTodoItem
+          key={element.id}
+          id={element.id}
+          element={element}
+          addTodos={props.addTodos}
+          removeTodos={props.removeTodos}
+          currentDate={props.currentDate}
+        />
+      );
+    }
   });
   // return Object.keys(props.todos).map((key, index) => {
   //   return (
@@ -120,7 +127,7 @@ function ShowTodos(props) {
 //--------------------
 // Each Todo Component
 //--------------------
-function DisplayTodoItem({ id, element, addTodos, removeTodos }) {
+function DisplayTodoItem({ id, element, addTodos, removeTodos, currentDate }) {
   const [edit, setEdit] = useState(false);
 
   async function getData() {
@@ -137,12 +144,18 @@ function DisplayTodoItem({ id, element, addTodos, removeTodos }) {
   };
   const handleEditOne = async (e) => {
     e.preventDefault();
+    console.log(e.target[3].value);
+    const date = e.target[3].value
+      ? `${e.target[2].value}T${e.target[3].value}:00`
+      : e.target[2].value;
+
     const response = await fetch(`http://localhost:3001/test/${e.target.id}`, {
       method: "PATCH",
       body: JSON.stringify({
         name: `${e.target[0].value}`,
         title: `${e.target[1].value}`,
-        start: `${e.target[2].value}T${e.target[3].value}:00`,
+        start: date,
+        modified: new Date(),
       }),
       headers: { "Content-Type": "application/json" },
     });
@@ -170,22 +183,29 @@ function DisplayTodoItem({ id, element, addTodos, removeTodos }) {
     return (
       <div>
         <h2>
-          {id} {element.name} {element.start.substring(0, 10)}
+          {element.name} {element.start.substring(0, 10)}
         </h2>
-        <p>
-          {element.title} {element.start.substring(11, 16)}
-        </p>
+        <span id="event-title">
+          {element.start[11] === "0"
+            ? element.start.substring(12, 16)
+            : element.start.substring(11, 16)}{" "}
+          {element.title}
+        </span>
         <button id={id} onClick={handleGetOne}>
+          Modify
+        </button>
+        {/* <button id={id} onClick={handleGetOne}>
           Edit
         </button>
         <button id={id} onClick={handleDelete}>
           Delete
-        </button>
+        </button> */}
       </div>
     );
   } else {
     return (
-      <form id={id} onSubmit={handleEditOne}>
+      <form className="edit-form" id={id} onSubmit={handleEditOne}>
+        <h2>Edit Event</h2>
         <input
           type="text"
           placeholder={element.name}
@@ -196,18 +216,22 @@ function DisplayTodoItem({ id, element, addTodos, removeTodos }) {
           placeholder={element.title}
           defaultValue={element.title}
         ></input>
-        <input
-          type="date"
-          defaultValue={element.start.substring(0, 10)}
-        ></input>
-        <input
-          type="time"
-          defaultValue={element.start.substring(11, 16)}
-        ></input>
-        <button id={id}>Submit</button>
-        <button id={id} onClick={handleDelete}>
-          Delete
-        </button>
+        <div>
+          <input
+            type="date"
+            defaultValue={element.start.substring(0, 10)}
+          ></input>
+          <input
+            type="time"
+            defaultValue={element.start.substring(11, 16)}
+          ></input>
+        </div>
+        <div>
+          <button id={id}>Confirm</button>
+          <button id={id} onClick={handleDelete}>
+            Delete
+          </button>
+        </div>
       </form>
     );
   }
@@ -217,6 +241,7 @@ function DisplayTodoItem({ id, element, addTodos, removeTodos }) {
 // Create One
 //--------------------
 function CreateNewTodo(props) {
+  const [edit, setEdit] = useState(false);
   const now = new Date();
   var y = now.getFullYear();
   var m = now.getMonth() + 1;
@@ -233,11 +258,11 @@ function CreateNewTodo(props) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(e.target[3].value);
     const obj = {
       name: e.target[0].value,
       title: e.target[1].value,
       start: `${e.target[2].value}T${e.target[3].value}:00`,
+      modified: new Date(),
     };
     const sendTodosToAPI = async () => {
       const response = await fetch("http://localhost:3001/test", {
@@ -265,32 +290,54 @@ function CreateNewTodo(props) {
     console.log(e.target.value);
     setDate(e.target.value);
   };
-  return (
-    <form id="create-todo-form" onSubmit={handleSubmit}>
-      <input type="text" placeholder={"Put new todo"} />
-      <div>
-        <textarea placeholder="Description" />
-      </div>
-      <div>
-        <label>Start Date</label>
-        <input
-          type="date"
-          required={true}
-          onChange={changeDateState}
-          defaultValue={date}
-        />
-        <label>Start Time</label>
-        <input type="time" required={true} defaultValue="00:00" />
-      </div>
-      <div>
-        <label>End Date</label>
-        <input type="date" onChange={changeDateState} defaultValue={date} />
-        <label>End Time</label>
-        <input type="time" defaultValue="00:00" />
-      </div>
-      <button type="submit">Create</button>
-    </form>
-  );
+
+  const handleNewEventClick = (e) => {
+    setEdit(!edit);
+  };
+  if (edit) {
+    return (
+      <form id="create-todo-form" onSubmit={handleSubmit}>
+        <h2>Create New Event</h2>
+        <label>Subject</label>
+        <div>
+          <input type="text" placeholder={"Put new todo"} />
+        </div>
+        <label>Event</label>
+        <div>
+          <textarea placeholder="Description" />
+        </div>
+        <div>
+          <label>Start Date</label>
+          <input
+            type="date"
+            required={true}
+            onChange={changeDateState}
+            defaultValue={date}
+          />
+          <label>Start Time</label>
+          <input type="time" required={true} defaultValue="00:00" />
+        </div>
+        <div>
+          <label>End Date</label>
+          <input type="date" onChange={changeDateState} defaultValue={date} />
+          <label>End Time</label>
+          <input type="time" defaultValue="00:00" />
+        </div>
+        <button type="submit">Create</button>
+        <button onClick={handleNewEventClick}>Close</button>
+      </form>
+    );
+  } else {
+    return (
+      <form id="create-todo-form">
+        <div>
+          <button id="new-event-button" onClick={handleNewEventClick}>
+            Create New Event
+          </button>
+        </div>
+      </form>
+    );
+  }
 }
 
 export default App;
