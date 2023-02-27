@@ -8,7 +8,7 @@ const sql = postgres("postgres://Local User@localhost:5432/todo_db");
 
 app.get("/test", async (req, res) => {
   try {
-    const response = await sql`SELECT * from todo_table`;
+    const response = await sql`SELECT * from todo_table ORDER BY start ASC`;
     res.send(response).status(200);
   } catch (error) {}
 });
@@ -23,9 +23,9 @@ app.get("/test/:id", async (req, res) => {
 
 app.post("/test", async (req, res) => {
   try {
-    const { name, description } = req.body;
-    const response = await sql`INSERT INTO todo_table(name, description)
-    VALUES (${name},${description}) RETURNING *`;
+    const { name, title, start } = req.body;
+    const response = await sql`INSERT INTO todo_table(name, title, start)
+    VALUES (${name},${title},${start}) RETURNING *`;
     res.send(response).status(200);
   } catch (error) {}
 });
@@ -33,9 +33,10 @@ app.post("/test", async (req, res) => {
 app.patch("/test/:id", async (req, res) => {
   try {
     const id = req.params.id;
-    const { name, description } = req.body;
+    const { name, title, start } = req.body;
     const response = await sql`UPDATE todo_table SET name = ${name},
-    description = ${description}
+    title = ${title},
+    start = ${start}
     WHERE id = ${id} RETURNING *`;
     res.send(response).status(200);
   } catch (error) {}
