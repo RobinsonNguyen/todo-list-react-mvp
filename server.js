@@ -4,7 +4,11 @@ const cors = require("cors");
 app.use(cors());
 app.use(express.json());
 const postgres = require("postgres");
-const sql = postgres("postgres://Local User@localhost:5432/todo_db");
+const dotenv = require("dotenv");
+dotenv.config();
+// const sql = postgres("postgres://Local User@localhost:5432/todo_db");
+const PORT = process.env.port || 3001;
+const sql = postgres(process.env.DATABASE_URL);
 
 app.get("/test", async (req, res) => {
   try {
