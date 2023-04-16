@@ -10,42 +10,25 @@ function App() {
   const [currentDate, setCurrentDate] = useState("");
   async function getData() {
     const res = await fetch("https://todo-list-react-mvp.onrender.com/test");
+    // const res = await fetch("http://localhost:3001/test");
     const data = await res.json();
     setTodos(data);
-    // data.map((element) => {
-    //   const obj = {};
-    //   obj[element.id] = {
-    //     name: element.name,
-    //     title: element.title,
-    //   };
-    //   addTodos(obj);
-    // });
   }
   useEffect(() => {
     getData();
-    console.log(todos);
   }, []);
 
   function addTodos(obj) {
-    // setTodos((prevState) => {
-    //   return { ...prevState, ...obj };
-    // });
     setTodos(obj);
   }
 
   function removeTodos(id) {
-    // const temp = { ...todos };
-    // delete temp[id];
-    // setTodos(temp);
     getData();
   }
 
-  const handleDateClick = (arg) => {
-    console.log(arg);
-  };
+  const handleDateClick = (arg) => {};
 
   const handleDateSelect = (selectInfo) => {
-    console.log(selectInfo.startStr);
     setCurrentDate(selectInfo.startStr);
   };
   return (
@@ -71,18 +54,7 @@ function App() {
               center: "title",
               right: "dayGridMonth,dayGridWeek,dayGridDay",
             }}
-            events={
-              todos
-              // [
-              //   {
-              //     title: "test1",
-              //     start: "2023-02-26T05:00:00",
-              //     end: "2023-02-27T16:30:00",
-              //     editable: true,
-              //   },
-              //   { title: "test2", date: "2023-02-27" },
-              // ]
-            }
+            events={todos}
             dateClick={handleDateClick}
             select={handleDateSelect}
             selectable={true}
@@ -111,17 +83,6 @@ function ShowTodos(props) {
       );
     }
   });
-  // return Object.keys(props.todos).map((key, index) => {
-  //   return (
-  //     <DisplayTodoItem
-  //       key={key}
-  //       id={key}
-  //       element={props.todos[key]}
-  //       addTodos={props.addTodos}
-  //       removeTodos={props.removeTodos}
-  //     />
-  //   );
-  // });
 }
 
 //--------------------
@@ -131,14 +92,16 @@ function DisplayTodoItem({ id, element, addTodos, removeTodos, currentDate }) {
   const [edit, setEdit] = useState(false);
 
   async function getData() {
-    const res = await fetch("https://todo-list-react-mvp.onrender.com/test");
+    // const res = await fetch("https://todo-list-react-mvp.onrender.com/test");
+    const res = await fetch("http://localhost:3001/test");
     const data = await res.json();
     addTodos(data);
   }
   const handleGetOne = async (e) => {
-    const response = await fetch(
-      `https://todo-list-react-mvp.onrender.com/test/${e.target.id}`
-    );
+    // const response = await fetch(
+    //   `https://todo-list-react-mvp.onrender.com/test/${e.target.id}`
+    // );
+    const response = await fetch(`http://localhost:3001/test/${e.target.id}`);
     const data = await response.json();
     console.log(`I want to edit id: ${e.target.id}`);
     console.log(data[0]);
@@ -152,7 +115,8 @@ function DisplayTodoItem({ id, element, addTodos, removeTodos, currentDate }) {
       : e.target[2].value;
 
     const response = await fetch(
-      `https://todo-list-react-mvp.onrender.com/test/${e.target.id}`,
+      // `https://todo-list-react-mvp.onrender.com/test/${e.target.id}`,
+      `http://localhost:3001/test/${e.target.id}`,
       {
         method: "PATCH",
         body: JSON.stringify({
@@ -166,18 +130,13 @@ function DisplayTodoItem({ id, element, addTodos, removeTodos, currentDate }) {
     );
     const data = await response.json();
     console.log(`updating on id: ${e.target.id}`);
-    // const temp = {};
-    // temp[e.target.id] = {
-    //   name: data[0].name,
-    //   title: data[0].title,
-    // };
-    // addTodos(temp);
     getData();
     setEdit(!edit);
   };
   const handleDelete = async (e) => {
     const response = await fetch(
-      `https://todo-list-react-mvp.onrender.com/test/${e.target.id}`,
+      // `https://todo-list-react-mvp.onrender.com/test/${e.target.id}`,
+      `http://localhost:3001/test/${e.target.id}`,
       {
         method: "DELETE",
       }
@@ -259,7 +218,8 @@ function CreateNewTodo(props) {
   const [date, setDate] = useState(`${y}-${m}-${d}`);
 
   async function getData() {
-    const res = await fetch("https://todo-list-react-mvp.onrender.com/test");
+    // const res = await fetch("https://todo-list-react-mvp.onrender.com/test");
+    const res = await fetch("http://localhost:3001/test");
     const data = await res.json();
     props.addTodos(data);
   }
@@ -274,7 +234,8 @@ function CreateNewTodo(props) {
     };
     const sendTodosToAPI = async () => {
       const response = await fetch(
-        "https://todo-list-react-mvp.onrender.com/test",
+        // "https://todo-list-react-mvp.onrender.com/test",
+        "http://localhost:3001/test",
         {
           method: "POST",
           body: JSON.stringify(obj),
@@ -284,13 +245,6 @@ function CreateNewTodo(props) {
         }
       );
       const data = await response.json();
-      //sends first and only row from sql query to setTodo state
-      // const temp = {};
-      // temp[data[0].id] = {
-      //   name: data[0].name,
-      //   title: data[0].title,
-      // };
-      // props.addTodos(temp);
       getData(data);
     };
     e.target.reset();
@@ -328,12 +282,12 @@ function CreateNewTodo(props) {
           <label>Start Time</label>
           <input type="time" required={true} defaultValue="00:00" />
         </div>
-        <div>
+        {/* <div>
           <label>End Date</label>
           <input type="date" onChange={changeDateState} defaultValue={date} />
           <label>End Time</label>
           <input type="time" defaultValue="00:00" />
-        </div>
+        </div> */}
         <button type="submit">Create</button>
         <button onClick={handleNewEventClick}>Close</button>
       </form>
